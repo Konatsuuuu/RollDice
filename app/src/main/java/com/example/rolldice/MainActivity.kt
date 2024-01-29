@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.rolldice.ui.theme.RollDiceTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +34,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RollDiceTheme {
-                RollDiceWithButtonAndImagePreview()
+                RollDiceWithButtonAndImage()
             }
         }
     }
@@ -44,33 +46,80 @@ fun RollDiceWithButtonAndImage(modifier: Modifier =
                                        .fillMaxSize()
                                        .wrapContentSize(align = Alignment.Center))
 {
+    var gameCount by remember{mutableStateOf(0)}
+    var tapCount by remember{mutableStateOf(0)}
+    var randTapNum by remember {mutableStateOf((5..10).random())}
+
     Column (modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally)
     {
-
-        var result by remember{mutableStateOf(1)}
-        val diceImageID = when (result)
+        var ID by remember{mutableStateOf(1)}
+        val orangeImageID = when (ID)
         {
-            1-> R.drawable.dice_1
-            2-> R.drawable.dice_2
-            3-> R.drawable.dice_3
-            4-> R.drawable.dice_4
-            5-> R.drawable.dice_5
-            else-> R.drawable.dice_6
+              1-> R.drawable.orange_tree
+             2-> R.drawable.orange_fruit
+            3-> R.drawable.orange_drink_full
+            else-> R.drawable.orange_drink_empty
         }
 
-        Image(painter = painterResource(diceImageID),
-            contentDescription = "dice")
+        var textID by remember{mutableStateOf(1)}
+        val text = when (textID)
+        {
+            1-> "Tap the orange tree to select an orange!"
+            2-> "Keep tapping the orange to squeeze it"
+            3-> "Tap the orange juice to drink it"
+            else-> "Tap the empty glass to start again"
+        }
 
-        Spacer(modifier = Modifier.height(60.dp))
 
         Button(onClick = {
-            result = (1..6).random()
+            tapCount++
+            if(tapCount <= randTapNum)
+            {
+                ID = 2
+                textID = 2
+
+            }
+            else if(tapCount == 1 + randTapNum)
+            {
+                ID = 3
+                textID = 3
+            }
+            else if(tapCount == 2 + randTapNum)
+            {
+                ID = 4
+                textID = 4
+            }
+            else
+            {
+                gameCount += 1
+                tapCount = 0
+                ID = 1
+                textID = 1
+
+               randTapNum = (6..10).random()
+            }
+
         })
         {
 
-            Text(text = stringResource(id = R.string.RollDiceBtnText))
+            Image(painter = painterResource(orangeImageID),
+                contentDescription = "orange")
         }
+
+
+        Spacer(modifier = Modifier.height(60.dp))
+        Text(text = "$text")
+
+        Spacer(modifier = Modifier.height(120.dp))
+        Text(
+            text = "Game count: $gameCount",
+            modifier = Modifier
+                .align(Alignment.Start)
+        )
+//        Text(text = "tap count: $tapCount")
+//        Text(text = "randTapNum: $randTapNum")
+
     }
 
 }
